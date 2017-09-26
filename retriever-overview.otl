@@ -50,7 +50,7 @@ How (and Why) We Built Our Own Distributed Columnar Store
 		Time series *and* raw event data
 			no pre-aggregation
 		Operationally interesting calculations
-			AVERAGE, percentiles, histograms
+			percentiles, histograms
 			COUNT_DISTINCT
 	Our requirements
 		Fast!
