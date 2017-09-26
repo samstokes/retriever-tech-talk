@@ -1,0 +1,105 @@
+body {
+  font-family: Ubuntu;
+  background-color: #222222;
+  color: #dddddd;
+}
+code { font-family: Ubuntu Mono }
+h1 {
+  text-align: center;
+  font-size: 160%;
+}
+h2 { font-size: 120% }
+h3 { font-size: 100% }
+
+.slide > p {
+  margin-left: 4em;
+  display: list-item;
+}
+.slide p {
+  font-style: normal;
+  margin-left: 0;
+}
+
+.slide > ul > li {
+  list-style-type: none;
+  /* slidy.css defines ul { margin-left: 1.5em } */
+  margin-left: 2.5em;
+}
+
+.slide li > table {
+  font-style: normal;
+}
+
+.slide li > .sourceCode {
+  font-style: normal;
+}
+
+.slide img {
+  float: left;
+  /*margin-bottom: 20%;*/
+  margin-right: 8%;
+  max-width: 40%;
+  max-height: 70vh;
+}
+
+.slide li > ul img {
+  float: left;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.slide img.full {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 80%;
+  display: block;
+}
+
+.slide .right {
+  float: right;
+  clear: right;
+  margin-bottom: 8%;
+  margin-left: 8%;
+  max-width: 10%;
+}
+
+.slide .left-half {
+  float: left;
+  margin-bottom: 8%;
+  margin-right: 8%;
+  max-width: 40%;
+}
+
+.slide .right-half {
+  float: right;
+  margin-bottom: 8%;
+  margin-left: 8%;
+  max-width: 40%;
+}
+
+table caption {
+  font-variant: small-caps
+}
+
+tr.odd {
+  background: #444
+}
+
+tr.even {
+  background: #666
+}
+
+code.sourceCode.bash:before {
+  content: "$ ";
+  color: #95abd0; /* match pre.sourceCode border-color */
+}
+
+code {
+  background: lightgrey;
+  border-radius: 0.1em;
+  padding: 0.1em;
+}

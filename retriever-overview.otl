@@ -1,0 +1,299 @@
+How (and Why) We Built Our Own Distributed Columnar Store
+	About me
+		<IMAGE
+		<bizcard.png
+		I work on retriever
+	WTF is retriever?
+		<IMAGE.right-half
+		<retriever.jpg
+		Distributed columnar store
+		Analytic query engine
+		Let's back up a second...
+	You're probably wondering how I got here
+		>MARKDOWN
+		><img src="pelican.jpg" class="full" />
+		><!-- https://twitter.com/gabrielfiji/status/771148599736401920 -->
+	Why build our own data store?
+		Honeycomb's secret sauce
+			... so I'm telling you all how it works ...
+		What is Honeycomb?
+			Observability tool
+			For understanding and troubleshooting your systems in production
+			Looks like metrics, with the just-in-time flexibility of logs
+			BRIEF DEMO!
+	How Honeycomb works
+		You send us events
+			<JSON
+			<{
+			<  "path": "/splines/:spline_id/reticulate",
+			<  "response_time_ms": 253,
+			<  "status": 500,
+			<  "error": "SplineNotReticulableError",
+			<  "user_id": 42
+			<}
+		We let you query them
+			<IMAGE
+			<query.png
+			arbitrary breakdowns and filters
+	How Honeycomb works
+		And show you pretty graphs
+			<IMAGE
+			<query-result.png
+			>COMMENT
+			>TODO this graph is bogus, just do demo or get better graphs
+	Honeycomb under the hood
+		How do we store your events?
+		How do you get graphs out?
+	Our requirements
+		SQL-like queries with BREAK DOWN and FILTER
+			flexible - no predefined schema or indices
+		Time series *and* raw event data
+			no pre-aggregation
+		Operationally interesting calculations
+			AVERAGE, percentiles, histograms
+			COUNT_DISTINCT
+	Our requirements
+		Fast!
+			want "interactive" speed
+			allow iterative, Q&A-style investigation
+		Horizontal scalability
+			expand storage capacity and throughput
+		Multi-tenant
+			management tools
+			per-customer quotas
+	Our requirements
+		Simple!
+			Not a general purpose database
+			No joins, transactions, ACID
+		Maintain and operate with a startup budget :)
+	Retriever at a glance
+		Event store inspired by Scuba
+		Column-oriented storage
+		Uses Kafka for ingest
+	Retriever at a glance
+		Event store inspired by Scuba
+		Column-oriented storage
+		Uses Kafka for ingest
+		Storage on disk
+			Much cheaper than RAM
+			SSDs are fast
+		Leverage filesystem features
+	Architecture - write path
+		>MARKDOWN
+		><img class="full" src="write-path.svg" />
+	Architecture - read path
+		>MARKDOWN
+		><img class="full" src="read-path.svg" />
+	Data model
+		Customers have one or more Datasets
+			analogous to tables
+		Datasets are partitioned
+			each dataset is assigned to a number of partitions
+			typically 3, up to 39
+		Dataset partitions contain events
+			no schema
+	Storage format
+		Column oriented: one file per column
+			||index|path      |response_time|status|error   |
+			| 0    |/foo      |142.2        |200   |<nil>   |
+			| 1    |/foo      |23           |500   |BadInput|
+			| 2    |/bar      |657          |200   |<nil>   |
+			| 3    |/foo      |105          |200   |<nil>   |
+		Each column is append-only
+		Each row gets an index
+			unique per segment
+			files are ordered by index (by construction)
+	Storage format - reading
+		>MARKDOWN
+		>|index  |path      |response_time|status  |error   |
+		>|-------|----------|-------------|--------|--------|
+		>|**0**  |/foo      |**142.2**    |**200** |<nil>   |
+		>|**1**  |/foo      |23           |**500** |BadInput|
+		>|**2**  |/bar      |**657**      |**200** |<nil>   |
+		>|**3**  |/foo      |**105**      |**200** |<nil>   |
+		>
+		>Table: only values in **bold** get read
+		e.g "AVG(response_time) WHERE status = 200"
+			open index, response_time and status
+			step through index and status, checking filter
+			collect values from response_time
+			skipping where status != 200
+	Storage format - index column
+		Special "timestamp" column always present
+			||index|timestamp|
+			| 0    |45080    |
+			| 1    |45085    |
+			| 2    |45087    |
+			| 3    |45107    |
+			| 4    |45302    |
+	Storage format - other columns
+		Type-specific binary format
+		Sparse
+			if no value for row, write nothing
+		Refers to index
+		e.g. for ints:
+			||index|value|
+			| 0    |200  |
+			| 2    |200  |
+			| 3    |404  |
+			| 8    |200  |
+	Storage format - strings
+		Variable-length strings
+		Stored with length prefix
+			||index|len|value|
+			| 0    |3  |The  |
+			| 1    |5  |quick|
+			| 3    |5  |brown|
+			| 7    |3  |fox  |
+		Separate index file to support seek
+			||index|len|offset|
+			| 0    |3  |0     |
+			| 1    |5  |11    |
+			| 3    |5  |24    |
+			| 7    |3  |35    |
+	Distributed reads
+		<IMAGE.left-half
+		<read-path-simplified.svg
+		Client issues a query to a retriever root node
+		Root retriever forwards the query to retrievers on other partitions
+			All scan rows in parallel
+			All perform local calculations
+			All return calculations to root node
+		Root retriever merges results and returns to client
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Need to be careful about combining results
+			<RUBY
+			<# e.g. averaging two averages gives the wrong answer
+			<AVG( 1, 2, 3, 3 ) # => 2.25
+			<AVG( AVG( 1, 2, 3 ), AVG( 3 ) ) # => 2.5
+		Send back partial results that can be combined
+			<RUBY
+			<# e.g. partial lengths and sums can be combined correctly
+			<SUM( 1, 2, 3, 3 ) / 4 # => 2.25
+			<(SUM( 1, 2, 3 ) + SUM( 3 )) / (3 + 1) # => 2.25
+	What about ops?
+		<IMAGE
+		<devops.jpg
+		Aging out old data
+		Fault tolerance
+		Bootstrapping new nodes
+	Aging out old data
+		Split events into segments
+			Segments are just directories on disk
+			Start a new segment when we've written enough events
+		Background job periodically deletes oldest data
+			Just delete the directories!
+	Detour - Kafka
+		<IMAGE
+		<kafka.png
+		Retriever relies on Kafka for ingesting events
+		Gives us:
+			Write distribution
+			Replication
+			Fault tolerance
+			Disaster recovery
+	Detour - Kafka
+		<IMAGE
+		<kafka.png
+		Kafka is a distributed log
+			~ message queue
+		Publish messages to topics
+			~ tables
+		Topics are partitioned
+			horizontal scaling 
+		>MARKDOWN
+		>Messages *within a partition* are totally ordered
+	Detour - Kafka
+		<IMAGE
+		<kafka.png
+		Kafka actually stores messages on disk
+			whether or not anyone is consuming them
+			unlike most message queues
+		Allows multiple consumers
+			aka pub-sub
+		Allows replaying
+	Ingestion
+		Clients publish events to a Kafka topic
+			Kafka topic is partitioned
+			1-1 with dataset partitions
+		Client chooses which partition to write to
+			Client checks partition assignment for dataset
+			Picks a partition (at random)
+		Retriever on that partition consumes events from Kafka
+			and writes to disk
+	Fault tolerance
+		All writes replicated to two nodes
+			Each partition of the Kafka topic has two retrievers consuming it
+	Fault tolerance
+		What if a node dies?
+			Crash, machine outage, network outage...
+			Deploy / planned maintenance
+		Each retriever tracks Kafka offset
+			Events are totally ordered in Kafka (per partition)
+		On boot, reconsume all events since last offset
+	Fault tolerance
+		Periodic checkpoints
+			Store Kafka offset of last-written message
+			Store *index* of last-written message
+		Determines where to reconsume from
+		Truncate written data to avoid duplicate writes
+	Bootstrapping new nodes
+		rsync!
+			find an existing node, just copy over the directory structure
+			some... efforts taken to deal with concurrent modification
+		... then consume Kafka from last checkpoint
+	Summary
+		Column-oriented storage
+			only read what you need
+		Kafka
+			really useful building block for distributed systems
+			"Turning the Database Inside Out" - Martin Kleppmann
+		Filesystems are actually pretty useful
+			cached reads
+			atomic renames
+			rsync!
+	Questions?
+		Column-oriented storage
+			only read what you need
+		Kafka
+			really useful building block for distributed systems
+			"Turning the Database Inside Out" - Martin Kleppmann
+		Filesystems are actually pretty useful
+			cached reads
+			atomic renames
+			rsync!
+		<IMAGE.right
+		<philosoraptor.jpg
+	Slide graveyard for longer versions of this talk
+		Abandon hope, all ye who enter here
+	Write path
+		POST event to shepherd
+			Choose a partition
+		Enqueue "retriever mutation" to Kafka partition
+		Retrievers consume mutations and write to disk
+			Two retrievers per partition
+	Write path - details
+		Retrievers receives a row from Kafka
+		Assign an index
+		Open an appender for each column
+			basically a file descriptor
+		Write values in row to each column appender
+		Hold appender open in case more rows come in for same dataset
+	Segments
+	Read path - query execution
+		2-stage: gather all rows, run calculations
+		Gather:
+			Always scan timestamp column (consider every row)
+			FILTER:
+				for each index in timestamp column
+				seek to corresponding index in filter column
+				skip index if filter fails
+		Accumulate:
+			COUNT, AVG, quantiles, etc
+			BREAKDOWN
+	Read path - node selection
+		checks which partitions the dataset is assigned to
+		checks Kennel for retriever nodes on those partitions
+		picks one node as the root
