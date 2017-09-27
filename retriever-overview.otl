@@ -1,46 +1,65 @@
 How (and Why) We Built Our Own Distributed Columnar Store
-	About me
-		<IMAGE
-		<bizcard.png
-		I work on retriever
-	WTF is retriever?
-		<IMAGE.right-half
+	Please meet Retriever
+		<IMAGE.full
+		<retriever.jpg
+	Please meet Retriever
+		<IMAGE.left
 		<retriever.jpg
 		Distributed columnar store
 		Analytic query engine
+		Schemaless data model
+	Please meet Retriever
+		<IMAGE.left
+		<retriever.jpg
+		Distributed columnar store
+		Analytic query engine
+		Schemaless data model
+		...
+	Please meet Retriever
+		<IMAGE.left
+		<retriever.jpg
+		Distributed columnar store
+		Analytic query engine
+		Schemaless data model
+		...
 		Let's back up a second...
 	You're probably wondering how I got here
 		>MARKDOWN
 		><img src="pelican.jpg" class="full" />
 		><!-- https://twitter.com/gabrielfiji/status/771148599736401920 -->
-	Why build our own data store?
-		Honeycomb's secret sauce
-			... so I'm telling you all how it works ...
-		What is Honeycomb?
-			Observability tool
-			For understanding and troubleshooting your systems in production
-			Looks like metrics, with the just-in-time flexibility of logs
-			BRIEF DEMO!
+	Retriever is Honeycomb's data store
+		<IMAGE.left
+		<retriever.jpg
+		>COMMENT
+		>separator
+		<IMAGE.right-half.force-half
+		<hc_logo.svg
+	What is Honeycomb?
+		<IMAGE.left-half.force-half
+		<hc_logo.svg
+		Not a sales pitch
+			I promise
+		Debugger for production systems
+			In between metrics and log aggregation
+			Help engineers understand and troubleshoot distributed systems
 	How Honeycomb works
-		You send us events
+		Your systems send us events
+			aka structured logs
 			<JSON
 			<{
-			<  "path": "/splines/:spline_id/reticulate",
+			<  "endpoint": "/splines/:spline_id/reticulate",
 			<  "response_time_ms": 253,
 			<  "status": 500,
 			<  "error": "SplineNotReticulableError",
 			<  "user_id": 42
 			<}
-		We let you query them
+		You query them
 			<IMAGE
 			<query.png
-			arbitrary breakdowns and filters
 	How Honeycomb works
-		And show you pretty graphs
-			<IMAGE
-			<query-result.png
-			>COMMENT
-			>TODO this graph is bogus, just do demo or get better graphs
+		We turn your queries into pretty graphs
+		<IMAGE.full
+		<heatmaps4.png
 	Honeycomb under the hood
 		How do we store your events?
 		How do you get graphs out?
@@ -255,6 +274,8 @@ How (and Why) We Built Our Own Distributed Columnar Store
 			atomic renames
 			rsync!
 	Questions?
+		<IMAGE.right-half
+		<bizcard.png
 		Column-oriented storage
 			only read what you need
 		Kafka
@@ -264,8 +285,6 @@ How (and Why) We Built Our Own Distributed Columnar Store
 			cached reads
 			atomic renames
 			rsync!
-		<IMAGE.right
-		<philosoraptor.jpg
 	Slide graveyard for longer versions of this talk
 		Abandon hope, all ye who enter here
 	Write path

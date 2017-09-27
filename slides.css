@@ -81,6 +81,10 @@ h3 { font-size: 100% }
   max-width: 40%;
 }
 
+.slide img.force-half {
+  width: 25vw;
+}
+
 table caption {
   font-variant: small-caps
 }
