@@ -398,6 +398,17 @@ How (and Why) We Built Our Own Distributed Column Store
 		Columns are just files in a directory
 			just list the directory contents
 	Storage format - reading
+		<IMAGE.left-half
+		<reading.jpg
+		Find out what columns exist
+		Columns are just files in a directory
+			just list the directory contents
+		;$ ls
+		;path.string
+		;response_time.float
+		;status.int
+		;error.string
+	Storage format - reading
 		>MARKDOWN
 		> ------- ---------- ------------- -------- -----------
 		> index   path       response_time status   error    
