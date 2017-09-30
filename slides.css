@@ -97,13 +97,21 @@ tr.even {
   background: #666
 }
 
+/* make emphasis in tables more visible */
+table strong {
+  text-decoration: underline;
+}
+
 code.sourceCode.bash:before {
   content: "$ ";
   color: #95abd0; /* match pre.sourceCode border-color */
 }
 
+pre, code {
+  background: #333333;
+}
+
 code {
-  background: lightgrey;
   border-radius: 0.1em;
   padding: 0.1em;
 }

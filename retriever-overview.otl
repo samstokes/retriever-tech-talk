@@ -409,105 +409,166 @@ How (and Why) We Built Our Own Distributed Column Store
 		;status.int
 		;error.string
 	Storage format - reading
-		>MARKDOWN
-		> ------- ---------- ------------- -------- -----------
-		> index   path       response_time status   error    
-		>   0     /foo         142.2         200             
-		>   1     /foo       23              400    Bad request 
-		>   2     /bar         657           200             
-		> ------- ---------- ------------- -------- -----------
-		>
-		>Table: only values in bold get read
-		e.g "AVG(response_time) WHERE status = 200"
+		e.g. "AVG(response_time) WHERE status = 200"
+		open the column files we need
+			index (from timestamp column)
+			status (for filter)
+			response_time
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		>   0       /foo           142.2         200             
-		>   1       /foo         23              400        Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			open files for index, response_time and status
+		e.g. "AVG(response_time) WHERE status = 200"
+		open the column files we need
+		index
+		|*|
+		status.int
+		|*|
+		response_time.float
+		|*|
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo           142.2         200             
-		>   1       /foo         23              400        Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 0
+		e.g. "AVG(response_time) WHERE status = 200"
+		read an index
+		index
+		|0       |*|
+		status.int
+		|*|
+		response_time.float
+		|*|
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo           142.2         **200**           
-		>   1       /foo         23              400        Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 0
-			read a status: 200 (pass!)
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from status file until we hit index 0
+		index
+		|0       |*|
+		status.int
+		|0  | 200 |*|
+		response_time.float
+		|*|
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo         **142.2**       **200**           
-		>   1       /foo         23              400        Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 0
-			read a status: 200 (pass!)
-			read a response time: 142.2
+		e.g. "AVG(response_time) WHERE status = 200"
+		status == 200!
+		index
+		|0       |*|
+		status.int
+		|0  | 200 |*|
+		response_time.float
+		|*|
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo         **142.2**       **200**           
-		> **1**     /foo         23              400        Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 1
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from response_time file until we hit index 0
+		index
+		|0       |*|
+		status.int
+		|0  | 200 |*|
+		response_time.float
+		|0 | 142.2 |*|
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo         **142.2**       **200**           
-		> **1**     /foo         23              **400**    Bad request 
-		>   2       /bar           657           200             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 1
-			read a status: 400 (fail!)
+		e.g. "AVG(response_time) WHERE status = 200"
+		collect response_time
+		index
+		|0       |*|
+		status.int
+		|0  | 200 |*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
 	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo         **142.2**       **200**           
-		> **1**     /foo         23              **400**    Bad request 
-		> **2**     /bar           657           **200**             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 2
-			read a status: 200 (pass!)
+		e.g. "AVG(response_time) WHERE status = 200"
+		read an index
+		index
+		|0       |1|*|
+		status.int
+		|0  | 200 |*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from status file until we hit index 1
+		index
+		|0       |1|*|
+		status.int
+		|0  | 200 |1  | 400 |*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		status ≠ 200, skip this event!
+		index
+		|0       |1|*|
+		status.int
+		|0  | 200 |1  | 400 |*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		read an index
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from status file until we hit index 2
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |2|200|*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		status == 200!
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |2|200|*|
+		response_time.float
+		|0 | 142.2 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from response_time file until we hit index 2
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |2|200|*|
+		response_time.float
+		|0 | 142.2 |1 | 23 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		read from response_time file until we hit index 2
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |2|200|*|
+		response_time.float
+		|0 | 142.2 |1 | 23 |2 | 657 |*|
+		response_times: [142.2]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		collect response_time
+		index
+		|0       |1|2|*|
+		status.int
+		|0  | 200 |1  | 400 |2|200|*|
+		response_time.float
+		|0 | 142.2 |1 | 23 |2 | 657 |*|
+		response_times: [142.2, 657]
+	Storage format - reading
+		e.g. "AVG(response_time) WHERE status = 200"
+		etc
+		index
+		|0       |1       |2       |*|
+		status.int
+		|0  | 200 | 1 | 400 | 2 | 200 |*|
+		response_time.float
+		|0       |142.2|1       |23  |2       |657 |*|
+		response_times: [142.2, 657]
 	Storage format - reading
 		>MARKDOWN
 		> --------- ---------- ----------------- ---------- -----------
@@ -518,26 +579,13 @@ How (and Why) We Built Our Own Distributed Column Store
 		> --------- ---------- ----------------- ---------- -----------
 		>
 		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
-			read an index: 2
-			read a status: 200 (pass!)
-			seek response_time to index 2
-			read a response time: 657
-	Storage format - reading
-		>MARKDOWN
-		> --------- ---------- ----------------- ---------- -----------
-		> **index** path       **response_time** **status** error    
-		> **0**     /foo         **142.2**       **200**           
-		> **1**     /foo         23              **400**    Bad request 
-		> **2**     /bar         **657**         **200**             
-		> --------- ---------- ----------------- ---------- -----------
-		>
-		>Table: only values in **bold** get read
-		e.g "AVG(response_time) WHERE status = 200"
+		e.g. "AVG(response_time) WHERE status = 200"
 		Only read what you need!
-			efficient seek
 			didn't touch other columns
+			efficient seek
 	Where we're going
+		<IMAGE.right-half
+		<http://cs.umw.edu/~finlayson/class/fall12/cpsc230/notes/images/tree.png
 		>MARKDOWN
 		><!-- outline slide! -->
 		>
