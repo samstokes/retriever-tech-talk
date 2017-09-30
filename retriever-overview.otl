@@ -35,7 +35,7 @@ How (and Why) We Built Our Own Distributed Column Store
 		<record-scratch-dog.png
 		>COMMENT
 		>https://twitter.com/breadgirI/status/771607453892907009
-	Retriever is Honeycomb's data store
+	Retriever is a special purpose data store
 		<IMAGE.left
 		<retriever.jpg
 		>COMMENT
@@ -46,8 +46,8 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.left-half.force-half
 		<hc_logo.svg
 		Debugger for production systems
-			In between metrics and log aggregation
-			Help engineers understand and troubleshoot distributed systems
+		Help engineers understand and troubleshoot distributed systems
+		In between metrics and log aggregation
 	How Honeycomb works
 		Your systems send us events
 			aka structured logs
@@ -74,13 +74,26 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.full
 		<graphs.png
 	How Honeycomb works
+		We turn your queries into pretty graphs
+		<IMAGE
+		<graphs.png
+		But you can still jump back to the raw data
+		<IMAGE
+		<data-mode.png
+	How Honeycomb works
 		Other questions you might ask:
 		>MARKDOWN.incremental
 		>Which users see the highest response times?
 		>
+		>* `AVG(response_time) BREAK DOWN BY user_id ORDER BY AVG(response_time) DESC`
+		>
 		>How many servers has my deploy rolled out to?
 		>
+		>* `COUNT_DISTINCT(hostname) BREAK DOWN BY build_id`
+		>
 		>Are any of our high-value customers affected by this error?
+		>
+		>* `COUNT(*) WHERE error = "oops" AND is_high_value_customer`
 	Honeycomb under the hood
 		How do we store your events?
 		How do you get graphs out?
@@ -112,7 +125,6 @@ How (and Why) We Built Our Own Distributed Column Store
 			BREAK DOWN and FILTER
 			flexible schema - no predefined indices
 		Time series and raw event data
-			no pre-aggregation
 		Operationally interesting calculations
 			percentiles, histograms
 			COUNT_DISTINCT
@@ -170,12 +182,13 @@ How (and Why) We Built Our Own Distributed Column Store
 		Stores raw events
 		Fast queries by fanning out across multiple nodes
 	Retriever compared to Scuba
-		Uses Kafka for ingest
 		Storage on disk
 			Much cheaper than RAM
 			SSDs are fast
 		Leverage filesystem features
 		Column-oriented storage
+		Uses Kafka for ingest
+			And for nice operational properties
 	Architecture - write path
 		>MARKDOWN
 		><img class="full" src="write-path.svg" />
@@ -242,6 +255,17 @@ How (and Why) We Built Our Own Distributed Column Store
 		Index is unique
 			assigned on ingest
 		Timestamped
+	Data model - events
+		||index|timestamp|path      |response_time|status|error      |message                    |
+		| 0    |45080    |/foo      |142.2        |200   |           |                           |
+		| 1    |45085    |/foo      |23           |400   |Bad request|                           |
+		| 2    |45087    |/bar      |657          |200   |           |                           |
+		| 3    |45107    |/foo      |105          |200   |           |                           |
+		| 4    |45302    |          |             |      |           |Ground control to Major Tom|
+		How to store events?
+			Files on disk are just streams of bytes
+			Row oriented?
+			Column oriented?
 	Row oriented storage
 		||path      |response_time|status|error   |
 		| /foo      |142.2        |200   |        |
@@ -600,7 +624,7 @@ How (and Why) We Built Our Own Distributed Column Store
 		>Operations
 	Distributed queries
 		<IMAGE.left-half
-		<read-path-simplified.svg
+		<read-path-zoomed.svg
 		Client issues a query to a retriever root node
 		Root retriever forwards the query to retrievers on other partitions
 			All scan rows in parallel
@@ -620,6 +644,45 @@ How (and Why) We Built Our Own Distributed Column Store
 		<# e.g. partial lengths and sums can be combined correctly
 		<SUM( 1, 2, 3, 3 ) / 4 # => 2.25
 		<(SUM( 1, 2, 3 ) + SUM( 3 )) / (3 + 1) # => 2.25
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Other partial results that can be combined:
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Other partial results that can be combined:
+		Groups
+		<RUBY
+		<{"/dashboard": 235, "/products/iphone": 454}
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Other partial results that can be combined:
+		Groups
+		<RUBY
+		<{"/dashboard": 235, "/products/iphone": 454}
+		COUNT DISTINCT
+			HyperLogLog
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Other partial results that can be combined:
+		Groups
+		<RUBY
+		<{"/dashboard": 235, "/products/iphone": 454}
+		COUNT DISTINCT
+			HyperLogLog
+		Percentiles
+			T-digest
+	Distributed reads - fanout
+		Root node merges the results
+		May still have to do a lot of work
+			e.g. merging large numbers of groups
+		Don't want to overwhelm the root
+	Distributed reads - fanout
+		<IMAGE.full
+		<read-path-recursive.svg
 	Where we're going
 		<IMAGE.right-half
 		<devops.jpg
@@ -673,9 +736,13 @@ How (and Why) We Built Our Own Distributed Column Store
 			Picks a partition (at random)
 		Retriever on that partition consumes events from Kafka
 			and writes to disk
+		All writes replicated to two nodes
+			Each partition of the Kafka topic has two retrievers consuming it
 	Quota management
 		Each customer gets a storage quota
 		Want to age out old data past quota
+		>TODO
+		>overflow pic
 	Quota management
 		Split events into segments
 			Segments are just directories on disk
@@ -685,21 +752,33 @@ How (and Why) We Built Our Own Distributed Column Store
 		Background job periodically deletes oldest data
 			Just delete the directories!
 	Fault tolerance
-		All writes replicated to two nodes
-			Each partition of the Kafka topic has two retrievers consuming it
+		What if retriever goes down?
+			Crash, network outage...
+			Deploy / planned maintenance
+		We have two replicas...
 	Fault tolerance
 		What if retriever goes down?
 			Crash, network outage...
 			Deploy / planned maintenance
+		We have two replicas...
+		But we don't want to miss events coming in
+	Failure recovery
 		Each retriever tracks Kafka offset
 			Events are totally ordered in Kafka (per partition)
 		On boot, reconsume all events since last offset
-	Fault tolerance
+	Failure recovery
+		Periodic checkpoints
+			Store Kafka offset of last-written message
+			Store *index* of last-written message
+		Determines where to reconsume from
+	Failure recovery
 		Periodic checkpoints
 			Store Kafka offset of last-written message
 			Store *index* of last-written message
 		Determines where to reconsume from
 		Truncate written data to avoid duplicate writes
+			events up to checkpoint index was committed
+			anything after that is suspect
 	Bootstrapping new nodes
 		What if a node disappears completely?
 		Find an existing node on the same partition
