@@ -121,13 +121,18 @@ How (and Why) We Built Our Own Distributed Column Store
 		>
 		>Operations
 	Our requirements
-		SQL-like queries
-			BREAK DOWN and FILTER
-			flexible schema - no predefined indices
-		Time series and raw event data
-		Operationally interesting calculations
-			percentiles, histograms
-			COUNT_DISTINCT
+		>MARKDOWN.incremental
+		>SQL-like queries
+		>
+		>* BREAK DOWN and FILTER
+		>* no fixed schema or predefined indices
+		>
+		>Time series and raw event data
+		>
+		>Operationally interesting calculations
+		>
+		>* percentiles, histograms
+		>* COUNT_DISTINCT
 	Our requirements
 		Fast!
 			want "interactive" speed
@@ -174,21 +179,31 @@ How (and Why) We Built Our Own Distributed Column Store
 		<scuba-fanout.png
 		Ingest events at scale
 		Store them all
-		Fast queries by fanning out across multiple nodes
+			distributed across many nodes
+		Fast queries by fanning out to multiple nodes
 		Store everything in RAM for even faster queries
 	Retriever at a glance
+		<IMAGE.left-half
+		<retriever.jpg
 		Distributed event store
 		Inspired by Scuba
 		Stores raw events
+			distributed across many nodes
 		Fast queries by fanning out across multiple nodes
 	Retriever compared to Scuba
-		Storage on disk
-			Much cheaper than RAM
-			SSDs are fast
-		Leverage filesystem features
-		Column-oriented storage
-		Uses Kafka for ingest
-			And for nice operational properties
+		>MARKDOWN.incremental
+		>Storage on disk
+		>
+		>* Much cheaper than RAM
+		>* SSDs are fast
+		>
+		>Leverage filesystem features
+		>
+		>Column-oriented storage
+		>
+		>Uses Kafka for ingest
+		>
+		>* And for nice operational properties
 	Architecture - write path
 		>MARKDOWN
 		><img class="full" src="write-path.svg" />
@@ -606,7 +621,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		e.g. "AVG(response_time) WHERE status = 200"
 		Only read what you need!
 			didn't touch other columns
-			efficient seek
 	Where we're going
 		<IMAGE.right-half
 		<http://cs.umw.edu/~finlayson/class/fall12/cpsc230/notes/images/tree.png
@@ -625,12 +639,28 @@ How (and Why) We Built Our Own Distributed Column Store
 	Distributed queries
 		<IMAGE.left-half
 		<read-path-zoomed.svg
-		Client issues a query to a retriever root node
-		Root retriever forwards the query to retrievers on other partitions
-			All scan rows in parallel
-			All perform local calculations
-			All return calculations to root node
-		Root retriever merges results and returns to client
+		>MARKDOWN.incremental
+		>Client issues a query to a retriever root node
+		>
+		>Root retriever forwards the query to retrievers on other partitions
+		>
+		>* All scan rows in parallel
+		>* All perform local calculations
+		>* All return calculations to root node
+		>
+		>Root retriever merges results and returns to client
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Need to be careful about combining results
+	Distributed reads - calculations
+		Data is partitioned across nodes
+		So each node can only do part of the calculation
+		Need to be careful about combining results
+		<RUBY
+		<# e.g. averaging two averages gives the wrong answer
+		<AVG( 1, 2, 3, 3 ) # => 2.25
+		<AVG( AVG( 1, 2, 3 ), AVG( 3 ) ) # => 2.5
 	Distributed reads - calculations
 		Data is partitioned across nodes
 		So each node can only do part of the calculation
@@ -641,7 +671,7 @@ How (and Why) We Built Our Own Distributed Column Store
 		<AVG( AVG( 1, 2, 3 ), AVG( 3 ) ) # => 2.5
 		Send back partial results that can be combined
 		<RUBY
-		<# e.g. partial lengths and sums can be combined correctly
+		<# e.g. partial counts and sums can be combined correctly
 		<SUM( 1, 2, 3, 3 ) / 4 # => 2.25
 		<(SUM( 1, 2, 3 ) + SUM( 3 )) / (3 + 1) # => 2.25
 	Distributed reads - calculations
@@ -739,11 +769,13 @@ How (and Why) We Built Our Own Distributed Column Store
 		All writes replicated to two nodes
 			Each partition of the Kafka topic has two retrievers consuming it
 	Quota management
+		<IMAGE.left-half
+		<dam.jpg
 		Each customer gets a storage quota
 		Want to age out old data past quota
-		>TODO
-		>overflow pic
 	Quota management
+		<IMAGE.left-half
+		<dam.jpg
 		Split events into segments
 			Segments are just directories on disk
 			Start a new segment when we've written enough events
@@ -785,19 +817,32 @@ How (and Why) We Built Our Own Distributed Column Store
 		Copy over the data
 			just rsync the directory structure!
 		... then consume Kafka from last checkpoint
+	Operations - summary
+		Replication
+			via Kafka
+		Fault tolerance
+			via Kafka
+		Quota management
+			via filesystem
+		Bootstrapping new nodes
+			via rsync
+			and Kafka
+	Retriever
+		<IMAGE.full
+		<retriever.jpg
 	Summary
 		Column-oriented storage is a cool trick
 			only read what you need
 	Summary
 		Column-oriented storage is a cool trick
 			only read what you need
-		Kafka solves difficult distributed systems problems for you
+		Kafka solves distributed systems problems for you
 			fault tolerance
 			replication
 	Summary
 		Column-oriented storage is a cool trick
 			only read what you need
-		Kafka solves difficult distributed systems problems for you
+		Kafka solves distributed systems problems for you
 			fault tolerance
 			replication
 		Filesystems are actually pretty useful
@@ -807,7 +852,7 @@ How (and Why) We Built Our Own Distributed Column Store
 	Summary
 		Column-oriented storage is a cool trick
 			only read what you need
-		Kafka solves difficult distributed systems problems for you
+		Kafka solves distributed systems problems for you
 			fault tolerance
 			replication
 		Filesystems are actually pretty useful
@@ -820,7 +865,7 @@ How (and Why) We Built Our Own Distributed Column Store
 		<bizcard.png
 		Column-oriented storage is a cool trick
 			only read what you need
-		Kafka solves difficult distributed systems problems for you
+		Kafka solves distributed systems problems for you
 			fault tolerance
 			replication
 		Filesystems are actually pretty useful
