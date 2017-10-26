@@ -111,8 +111,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<checklist.png
 		>MARKDOWN
-		><!-- outline slide! -->
-		>
 		>**Requirements**
 		>
 		>Architecture Overview
@@ -160,8 +158,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<architecture.jpg
 		>MARKDOWN
-		><!-- outline slide! -->
-		>
 		>Requirements
 		>
 		>**Architecture Overview**
@@ -220,8 +216,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<columns.jpg
 		>MARKDOWN
-		><!-- outline slide! -->
-		>
 		>Requirements
 		>
 		>Architecture Overview
@@ -629,8 +623,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<http://cs.umw.edu/~finlayson/class/fall12/cpsc230/notes/images/tree.png
 		>MARKDOWN
-		><!-- outline slide! -->
-		>
 		>Requirements
 		>
 		>Architecture Overview
@@ -721,8 +713,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<devops.jpg
 		>MARKDOWN
-		><!-- outline slide! -->
-		>
 		>Requirements
 		>
 		>Architecture Overview
