@@ -9,6 +9,8 @@ How (and Why) We Built Our Own Distributed Column Store
 	Please meet Retriever
 		<IMAGE.full
 		<retriever.jpg
+		>COMMENT
+		>https://www.flickr.com/photos/rkleine/4228955783
 	Please meet Retriever
 		<IMAGE.left
 		<retriever.jpg
@@ -172,6 +174,8 @@ How (and Why) We Built Our Own Distributed Column Store
 	Scuba
 		<IMAGE
 		<scuba-header.png
+		>COMMENT
+		>http://db.disi.unitn.eu/pages/VLDBProgram/pdf/industry/p767-wiener.pdf
 		Built to solve this problem at Facebook
 		Distributed event store
 	Scuba
@@ -771,6 +775,8 @@ How (and Why) We Built Our Own Distributed Column Store
 	Quota management
 		<IMAGE.left-half
 		<dam.jpg
+		>COMMENT
+		>https://www.flickr.com/photos/nevilleslens/15957038008
 		Each customer gets a storage quota
 		Want to age out old data past quota
 	Quota management
@@ -860,19 +866,18 @@ How (and Why) We Built Our Own Distributed Column Store
 			atomic renames
 			rsync!
 		Look for ways to make hard problems easy
-	Summary
+	Credits
 		<IMAGE.right-half
 		<bizcard.png
-		Column-oriented storage is a cool trick
-			only read what you need
-		Kafka solves distributed systems problems for you
-			fault tolerance
-			replication
-		Filesystems are actually pretty useful
-			read caching
-			atomic renames
-			rsync!
-		Look for ways to make hard problems easy
+		>MARKDOWN
+		> * retriever - rkleine (Flickr)
+		> * record scratch dog - breadgirI (Twitter)
+		> * checklist - mufidahkassalias (Flickr)
+		> * architecture - barnyz (Flickr)
+		> * Scuba paper - Facebook (various authors)
+		> * columns - bcymet (Flickr)
+		> * reading - triviaqueen (Flickr)
+		> * dam - nevilleslens (Flickr)
 	Fin
 	Slide graveyard for longer versions of this talk
 		Abandon hope, all ye who enter here
