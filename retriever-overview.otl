@@ -101,51 +101,35 @@ How (and Why) We Built Our Own Distributed Column Store
 		>Are any of our high-value customers affected by this error?
 		>
 		>* `COUNT(*) WHERE error = "oops" AND is_high_value_customer`
-	Honeycomb under the hood
-		How do we store your events?
-		How do you get graphs out?
-	Honeycomb under the hood
-		How do we store your events?
-		How do you get graphs out?
-		Spoiler alert
-			<IMAGE.left-half
-			<retriever.jpg
-	Where we're going
-		>COMMENT
-		>https://www.flickr.com/photos/mufidahkassalias/10519774073
-		<IMAGE.right-half
-		<checklist.png
-		>MARKDOWN
-		>**Requirements**
+	Our requirements
+		>MARKDOWN.incremental
+		>Store lots of events
 		>
-		>Architecture Overview
+		>Query them fast
 		>
-		>Column-oriented storage
-		>
-		>Distributed queries
-		>
-		>Operations
+		><img class="right-half" src="retriever.jpg" />
 	Our requirements
 		>MARKDOWN.incremental
 		>SQL-like queries
 		>
-		>* BREAK DOWN and FILTER
+		>BREAK DOWN and FILTER
+		>
+		>* on any property of the data
 		>* no fixed schema or predefined indices
 		>
+		>High cardinality
+	Our requirements
+		>MARKDOWN.incremental
 		>Time series and raw event data
 		>
 		>Operationally interesting calculations
 		>
 		>* percentiles, histograms
 		>* COUNT_DISTINCT
+		>
+		>Fast!
 	Our requirements
-		Fast!
-			want "interactive" speed
-			allow iterative, Q&A-style investigation
-	Our requirements
-		Multi-tenant
-			per-customer quotas
-			management tools
+		Maintain and operate with a startup budget :)
 	Our requirements
 		Maintain and operate with a startup budget :)
 		Simple!
@@ -153,18 +137,21 @@ How (and Why) We Built Our Own Distributed Column Store
 			Constrained access patterns
 			No updates
 			No joins, transactions, ACID
-	Requirements - summary
-		Flexible queries
-		Fast
-		Simple
+	Where we're going
+		>MARKDOWN
+		>Architecture Overview
+		>
+		>Column-oriented storage
+		>
+		>Distributed queries
+		>
+		>Operations
 	Where we're going
 		>COMMENT
 		>https://www.flickr.com/photos/75487768@N04/16577863294
 		<IMAGE.right-half
 		<architecture.jpg
 		>MARKDOWN
-		>Requirements
-		>
 		>**Architecture Overview**
 		>
 		>Column-oriented storage
@@ -221,8 +208,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<columns.jpg
 		>MARKDOWN
-		>Requirements
-		>
 		>Architecture Overview
 		>
 		>**Column-oriented storage**
@@ -626,8 +611,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<http://cs.umw.edu/~finlayson/class/fall12/cpsc230/notes/images/tree.png
 		>MARKDOWN
-		>Requirements
-		>
 		>Architecture Overview
 		>
 		>Column-oriented storage
@@ -716,8 +699,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		<IMAGE.right-half
 		<devops.jpg
 		>MARKDOWN
-		>Requirements
-		>
 		>Architecture Overview
 		>
 		>Column-oriented storage
@@ -865,7 +846,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		>MARKDOWN
 		> * retriever - rkleine (Flickr)
 		> * record scratch dog - breadgirI (Twitter)
-		> * checklist - mufidahkassalias (Flickr)
 		> * architecture - barnyz (Flickr)
 		> * Scuba paper - Facebook (various authors)
 		> * columns - bcymet (Flickr)
