@@ -47,9 +47,14 @@ How (and Why) We Built Our Own Distributed Column Store
 	What is Honeycomb?
 		<IMAGE.left-half.force-half
 		<hc_logo.svg
-		Debugger for production systems
-		Help engineers understand and troubleshoot distributed systems
-		In between metrics and log aggregation
+		>MARKDOWN.incremental
+		>Debugger for production
+		>
+		>Help engineers understand and troubleshoot distributed systems
+		>
+		>In between metrics and log aggregation
+		>
+		>...
 	How Honeycomb works
 		Your systems send us events
 			aka structured logs
