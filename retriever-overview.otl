@@ -289,8 +289,6 @@ How (and Why) We Built Our Own Distributed Column Store
 		| /foo      |142.2        |200   |        |
 		|.          |             |      |        |
 		|.          |             |      |        |
-		>TODO
-		>would be nice if the vertical layout didn't jump
 		store all fields for a given record together
 		||record 0|     |   | |
 		|/foo     |142.2|200| |
