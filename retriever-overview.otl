@@ -80,27 +80,63 @@ How (and Why) We Built Our Own Distributed Column Store
 		We turn your queries into pretty graphs
 		<IMAGE.full
 		<graphs.png
-	How Honeycomb works
-		We turn your queries into pretty graphs
+	Honeycomb - example
+		<SQL
+		<COUNT(*) WHERE status_code >= 500
+		>COMMENT
+		>separator
 		<IMAGE
-		<graphs.png
-		But you can still jump back to the raw data
+		<error-spike-1.png
+		>MARKDOWN.incremental
+		>Hey, what's that error spike?
+		>
+		>Maybe it's just one availability zone?
+	Honeycomb - example
+		<SQL
+		<COUNT(*) WHERE status_code >= 500 GROUP BY region
+		>COMMENT
+		>separator
 		<IMAGE
-		<data-mode.png
-	How Honeycomb works
+		<error-spike-2.png
+		>MARKDOWN.incremental
+		>Across all availability zones...
+		>
+		>Let's dig deeper
+	Honeycomb - example
+		<SQL
+		<SELECT * WHERE status_code >= 500
+		>COMMENT
+		>separator
+		<IMAGE.full
+		<error-spike-data.png
+	Honeycomb - example
+		<SQL
+		<COUNT(*) WHERE status_code >= 500 GROUP BY build_id
+		>COMMENT
+		>separator
+		<IMAGE
+		<error-spike-3.png
+		>MARKDOWN.incremental
+		>Looks like the spike came from the new build
+		>
+		>How widely was the bad build deployed?
+	Honeycomb - example
+		<SQL
+		<COUNT DISTINCT(hostname) WHERE build_id = 51
+		>COMMENT
+		>separator
+		<IMAGE
+		<error-spike-4.png
+		Rolled out to 20% of the fleet
+		Then got rolled back
+	Honeycomb - example
 		Other questions you might ask:
 		>MARKDOWN.incremental
-		>Which users see the highest response times?
+		>Which customers were affected by this error?
 		>
-		>* `AVG(response_time) BREAK DOWN BY user_id ORDER BY AVG(response_time) DESC`
+		>Which customers see the highest response times?
 		>
-		>How many servers has my deploy rolled out to?
-		>
-		>* `COUNT_DISTINCT(hostname) BREAK DOWN BY build_id`
-		>
-		>Are any of our high-value customers affected by this error?
-		>
-		>* `COUNT(*) WHERE error = "oops" AND is_high_value_customer`
+		>Which microservice was causing the error?
 	Our requirements
 		>MARKDOWN.incremental
 		>Store lots of events
