@@ -124,7 +124,7 @@ Building a Distributed Column Store for Production Observability
 		>How widely was the bad build deployed?
 	Honeycomb - example
 		<SQL
-		<COUNT DISTINCT(hostname) WHERE build_id = 51
+		<COUNT DISTINCT(hostname) GROUP BY build_id
 		>COMMENT
 		>separator
 		<IMAGE
