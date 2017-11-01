@@ -101,6 +101,8 @@ Building a Distributed Column Store for Production Observability
 		>MARKDOWN.incremental
 		>Across all availability zones...
 		>
+		><img src="green-tick.gif" class="right" />
+		>
 		>Let's dig deeper
 	Honeycomb - example
 		<SQL
@@ -168,12 +170,20 @@ Building a Distributed Column Store for Production Observability
 		Maintain and operate with a startup budget :)
 	Our requirements
 		Maintain and operate with a startup budget :)
+		<IMAGE.right-half
+		<rube-goldberg.jpg
+		>COMMENT
+		>https://www.flickr.com/photos/agrinberg/25241887726
 		Simple!
 			Not a general purpose database
 			Constrained access patterns
 			No updates
 			No joins, transactions, ACID
 	Where we're going
+		>COMMENT
+		>https://www.flickr.com/photos/oatsy40/6375359117
+		<IMAGE.right-half
+		<sign.jpg
 		>MARKDOWN
 		>Architecture Overview
 		>
@@ -887,6 +897,7 @@ Building a Distributed Column Store for Production Observability
 		> * columns - bcymet (Flickr)
 		> * reading - triviaqueen (Flickr)
 		> * dam - nevilleslens (Flickr)
+		> * rube goldberg machine - agrinberg (Flickr)
 	Fin
 	Slide graveyard for longer versions of this talk
 		Abandon hope, all ye who enter here
