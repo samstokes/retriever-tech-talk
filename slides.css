@@ -1,9 +1,9 @@
 body {
-  font-family: Ubuntu;
+  font-family: Ubuntu, Helvetica, sans-serif;
   background-color: #222222;
   color: #dddddd;
 }
-code { font-family: Ubuntu Mono }
+code { font-family: Ubuntu Mono, monospace }
 h1 {
   text-align: center;
   font-size: 160%;
