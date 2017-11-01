@@ -136,7 +136,7 @@ Building a Distributed Column Store for Production Observability
 		>MARKDOWN.incremental
 		>Which customers were affected by this error?
 		>
-		>Which customers see the highest response times?
+		>Which customers see the most errors?
 		>
 		>Which microservice was causing the error?
 	Our requirements
@@ -158,7 +158,9 @@ Building a Distributed Column Store for Production Observability
 		>High cardinality
 	Our requirements
 		>MARKDOWN.incremental
-		>Time series and raw event data
+		>Queries returning raw event data
+		>
+		>... and returning time series
 		>
 		>Operationally interesting calculations
 		>
@@ -215,29 +217,35 @@ Building a Distributed Column Store for Production Observability
 	Scuba
 		<IMAGE.left
 		<scuba-fanout.png
-		Ingest events at scale
-		Store them all
-			distributed across many nodes
-		Fast queries by fanning out to multiple nodes
-		Store everything in RAM for even faster queries
+		>MARKDOWN.incremental
+		>Ingest events at scale
+		>
+		>Store them all
+		>
+		>Distribute events across many nodes
+		>
+		>Fast queries by fanning out to multiple nodes
+		>
+		>Store everything in RAM for even faster queries
 	Retriever at a glance
 		<IMAGE.left-half
 		<retriever.jpg
-		Distributed event store
-		Inspired by Scuba
-		Stores raw events
-			distributed across many nodes
-		Fast queries by fanning out across multiple nodes
-	Retriever compared to Scuba
+		>MARKDOWN.incremental
+		>Distributed event store
+		>
+		>Inspired by Facebook's Scuba
+	Retriever at a glance
+		<IMAGE.left-half
+		<retriever.jpg
 		>MARKDOWN.incremental
 		>Storage on disk
 		>
-		>* Much cheaper than RAM
+		>* Scuba uses RAM - $$$
 		>* SSDs are fast
 		>
-		>Leverage filesystem features
-		>
 		>Column-oriented storage
+		>
+		>Leverage filesystem features
 		>
 		>Uses Kafka for ingest
 		>
