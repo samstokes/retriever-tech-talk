@@ -661,6 +661,58 @@ Building a Distributed Column Store for Production Observability
 		e.g. "AVG(response_time) WHERE status = 200"
 		Only read what you need!
 			didn't touch other columns
+	Dynamic sampling
+		>MARKDOWN
+		> --------- ---------- ----------------- ---------- -----------
+		>   index   path         response_time     status   error    
+		>   0       /foo           142.2           200             
+		>   1       /foo         23                400      Bad request 
+		>   2       /bar           657             200               
+		> --------- ---------- ----------------- ---------- -----------
+		>
+		><div class="incremental">
+		>Not all events are equally interesting
+		>
+		>Most fast, successful responses look the same
+		>
+		>And they happen a lot more often
+		>
+		>... hopefully
+		></div>
+	Dynamic sampling
+		>MARKDOWN
+		> --------- --------------- ---------- ----------------- ---------- -----------
+		>   index   **sample_rate** path         response_time     status   error    
+		>   0       **100**         /foo           142.2           200             
+		>   1       **1**           /foo         23                400      Bad request 
+		>   2       **20**          /bar           657             200               
+		> --------- --------------- ---------- ----------------- ---------- -----------
+		>
+		><div class="incremental">
+		>Sample the events you send us
+		>
+		>But sample *dynamically*
+		>
+		>Tell us: "this event represents 100 just like it"
+		></div>
+	Dynamic sampling
+		>MARKDOWN
+		> --------- --------------- ---------- ----------------- ---------- -----------
+		>   index   **sample_rate** path         response_time     status   error    
+		>   0       **100**         /foo           142.2           200             
+		>   1       **1**           /foo         23                400      Bad request 
+		>   2       **20**          /bar           657             200               
+		> --------- --------------- ---------- ----------------- ---------- -----------
+		>
+		><div class="incremental">
+		>Knowing sample rate, we can calculate on sampled data
+		>
+		>e.g. COUNT per status
+		>
+		>200: 100 + 20 = 120
+		>
+		>400: 1 = 1
+		></div>
 	Where we're going
 		<IMAGE.right-half
 		<http://cs.umw.edu/~finlayson/class/fall12/cpsc230/notes/images/tree.png
