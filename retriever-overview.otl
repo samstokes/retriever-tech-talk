@@ -37,7 +37,7 @@ Building a Distributed Column Store for Production Observability
 		<record-scratch-dog.png
 		>COMMENT
 		>https://twitter.com/breadgirI/status/771607453892907009
-	Retriever is a special purpose data store
+	Retriever is a domain specific data store
 		<IMAGE.left
 		<retriever.jpg
 		>COMMENT
